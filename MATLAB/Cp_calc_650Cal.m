@@ -83,6 +83,7 @@ FS_meas.dCpmin = NaN([initLeng,3]);
 FS_meas.dCpmin_noEV = NaN([initLeng,3]); % just the min, no extreme value analysis
 FS_meas.dCp_skewness = NaN([initLeng,3]);
 FS_meas.dCp_kurtosis = NaN([initLeng,3]);
+FS_meas.dCp_Tint = NaN([initLeng,3]);
 
 table_idx = 1;
 for i=1:length(motes)
@@ -149,8 +150,10 @@ for i=1:length(motes)
                 for k=1:3
                     if sum(isnan(dCp{i,j}(:,k))) < 0.2*size(dCp{i,j},1)
                         FS_meas.dCpmin_noEV(table_idx,k) = nanmin(dCp{i,j}(:,k));
+                        FS_meas.dCp_Tint(table_idx,k) = integralTimescaleSimple(dCp{i,j}(:,k), 12.5);
                     end
                 end
+
                 
                 table_idx = table_idx+1;
             end
@@ -161,8 +164,8 @@ end
 %% Truncate and save table
 FS_meas = FS_meas(~isnan(FS_meas.WSavg), :);
 
-fprintf('Note: not saving resulting table\n');
-return
+% fprintf('Note: not saving resulting table\n');
+% return
 
 save(sprintf('%s/Cpstats/%s.mat', data_dir, Cpstats_name), 'FS_meas');
 writetable(FS_meas, sprintf('%s/Cpstats/%s.csv', data_dir, Cpstats_name));
